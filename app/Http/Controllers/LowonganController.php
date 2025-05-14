@@ -10,4 +10,9 @@ class LowonganController extends Controller
     {
         return view("lowongan.index");
     }
+
+    public function detail()
+    {
+        return view("lowongan.detail");
+    }
 }

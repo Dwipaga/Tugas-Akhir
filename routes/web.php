@@ -21,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->name('user.logout');
 Route::prefix('lowongan')->name('lowongan.')->group(function () {
         Route::get('/', [LowonganController::class, 'index'])->name('index');
+        Route::get('/detail', [LowonganController::class, 'detail'])->name('detail');
     });
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
