@@ -12,10 +12,8 @@ class DashboardController extends Controller
     
     public function index()
     {
-        // Get notifications
         $notifications = [];
         
-        // Get messages
         $messages = [];
         
         return view('dashboard.index', compact('notifications', 'messages'));
