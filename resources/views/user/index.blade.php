@@ -31,7 +31,6 @@
                             <th width="15%">First Name</th>
                             <th width="15%">Last Name</th>
                             <th width="10%">Phone</th>
-                            <th width="10%">Photo</th>
                             <th width="15%">Actions</th>
                         </tr>
                     </thead>
@@ -44,7 +43,6 @@
                             <td>{{ $user->firstname }}</td>
                             <td>{{ $user->lastname }}</td>
                             <td>{{ $user->phone }}</td>
-                            <td>{{ $user->photo }}</td>
                             <td>
                                 <a href="{{ route('user.edit', $user->user_id) }}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-edit"></i>

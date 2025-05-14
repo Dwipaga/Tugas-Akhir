@@ -9,7 +9,7 @@
     <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown user">
             <a class="nav-link dropdown-toggle p-1" data-toggle="dropdown" href="#" aria-expanded="false">
-                <img src="{{ asset('admin/assets/img/users/' . auth()->user()->photo) }}" class="rounded-circle" alt="User Image" width="30px"><span class="caret"></span>
+                <img src="{{Storage::url('user-photos/'. auth()->user()->photo) }}" class="rounded-circle" alt="User Image" width="30px"><span class="caret"></span>
             </a>
             <div class="dropdown-menu p-0 m-0" style="width:280px;">
                 <div class="card card-widget widget-user m-0">
@@ -23,7 +23,7 @@
                     </div>
                     <div class="widget-user-image">
 
-                        <img class="img-circle elevation-2" src="{{ asset('admin/assets/img/users/' . auth()->user()->photo) }}" alt="User Avatar">
+                        <img class="img-circle elevation-2" src="{{ Storage::url('user-photos/'.auth()->user()->photo) }}" alt="User Avatar">
                     </div>
                     <div class="card-footer">
                         <div class="row">

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class UsersController extends Controller
@@ -16,7 +18,9 @@ class UsersController extends Controller
 
     public function create()
     {
-        return view('user.form');
+        $groups = DB::table('groups')->get();
+
+        return view('user.form', ['groups' =>$groups, 'user' => null]);
     }
 
     public function store(Request $request)
@@ -24,43 +28,80 @@ class UsersController extends Controller
         $validated = $request->validate([
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|max:50|unique:users',
+            'group_id' => 'required',
             'email' => 'required|email|unique:users',
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'firstname' => 'required|string|max:100', // Changed from first_name to match form
+            'lastname' => 'required|string|max:100',  // Changed from last_name to match form
             'phone' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed'
         ]);
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('user-photos', 'public');
+            
+            $file = $request->file('photo');
+            $originalName = Auth::user()->user_id;
+            $extension = $file->getClientOriginalExtension();
+            Storage::disk('public')->put('user-photos/' . $originalName . '.' . $extension, file_get_contents($file));
+            $validated['photo'] = $originalName . '.' . $extension;
         }
 
         // Hash password
-        $validated['password'] = bcrypt($request->password);
+        $validated['password'] = $request->password;
 
-        User::create($validated);
+        // Map form field names to database columns if needed
+        $userData = [
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'group_id' => $validated['group_id'],
+            'firstname' => $validated['firstname'], // Map to database column
+            'lastname' => $validated['lastname'],   // Map to database column
+            'phone' => $validated['phone'],
+            'password' => md5($validated['password']),
+        ];
+        
+        if (isset($validated['photo'])) {
+            $userData['photo'] = $validated['photo'];
+        }
+
+        User::create($userData);
 
         return redirect()->route('user.index')
-               ->with('success', 'User created successfully.');
+            ->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit($id)
     {
-        return view('user.form', compact('user'));
+        $groups = DB::table('groups')->get();
+        $user = User::findOrFail($id);
+        return view('user.form', compact('user', 'groups'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+        
+        // Validate the request
         $validated = $request->validate([
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'username' => 'required|string|max:50|unique:users,username,'.$user->id,
-            'email' => 'required|email|unique:users,email,'.$user->id,
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'username' => 'required|string|max:50|unique:users,username,'.$id.',user_id', // Fixed unique rule
+            'email' => 'required|email|unique:users,email,'.$id.',user_id', // Fixed unique rule
+            'firstname' => 'required|string|max:100', // Changed to match form field
+            'lastname' => 'required|string|max:100',  // Changed to match form field
             'phone' => 'required|string|max:20',
-            'password' => 'nullable|string|min:8|confirmed'
+            'group_id' => 'required',
+            'password' => 'nullable|string|min:8' // Removed confirmed validation for updates
         ]);
+
+        // Map form field names to database columns
+        $userData = [
+            'username' => $validated['username'],
+            'email' => $validated['email'],
+            'group_id' => $validated['group_id'],
+            'first_name' => $validated['firstname'], // Map to database column
+            'last_name' => $validated['lastname'],   // Map to database column
+            'phone' => $validated['phone'],
+        ];
 
         // Handle photo upload
         if ($request->hasFile('photo')) {
@@ -68,24 +109,29 @@ class UsersController extends Controller
             if ($user->photo) {
                 Storage::disk('public')->delete($user->photo);
             }
-            $validated['photo'] = $request->file('photo')->store('user-photos', 'public');
+            $file = $request->file('photo');
+            $originalName = Auth::user()->user_id;
+            $extension = $file->getClientOriginalExtension();
+            Storage::disk('public')->put('user-photos/' . $originalName . '.' . $extension, file_get_contents($file));
+            $userData['photo'] = $originalName . '.' . $extension;
         }
 
         // Update password if provided
         if ($request->filled('password')) {
-            $validated['password'] = bcrypt($request->password);
-        } else {
-            unset($validated['password']);
+            $userData['password'] = bcrypt($request->password); // Use bcrypt instead of md5
         }
 
-        $user->update($validated);
+        // Update the user
+        $user->update($userData);
 
         return redirect()->route('user.index')
-               ->with('success', 'User updated successfully.');
+            ->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
+        
         // Delete photo if exists
         if ($user->photo) {
             Storage::disk('public')->delete($user->photo);
@@ -94,6 +140,6 @@ class UsersController extends Controller
         $user->delete();
 
         return redirect()->route('user.index')
-               ->with('success', 'User deleted successfully.');
+            ->with('success', 'User deleted successfully.');
     }
 }

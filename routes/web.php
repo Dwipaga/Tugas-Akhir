@@ -57,9 +57,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index'); // Diubah dari '/user' ke '/'
         Route::get('/create', [UsersController::class, 'create'])->name('create');
         Route::post('/', [UsersController::class, 'store'])->name('store');
-        Route::get('/{user}/edit', [UsersController::class, 'edit'])->name('edit');
-        Route::put('/{user}', [UsersController::class, 'update'])->name('update');
-        Route::delete('/{user}', [UsersController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}/edit', [UsersController::class, 'edit'])->name('edit');
+        Route::post('/update/{id}', [UsersController::class, 'update'])->name('update');
+        Route::delete('/{id}', [UsersController::class, 'destroy'])->name('destroy');
     });
     Route::prefix('penilaian')->name('penilaian.')->group(function () {
         Route::get('/', [PenilaianController::class, 'index'])->name('index');
