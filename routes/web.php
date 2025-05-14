@@ -3,7 +3,11 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PenilaianController;
+use App\Http\Controllers\UsersController;
+use App\Models\Penilaian;
 use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -15,10 +19,13 @@ Route::get('/login', [HomeController::class, 'index'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('user.logout');
-
+Route::prefix('lowongan')->name('lowongan.')->group(function () {
+        Route::get('/', [LowonganController::class, 'index'])->name('index');
+    });
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Group untuk menus (tanpa prefix user)
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');
         Route::get('/create', [MenuController::class, 'create'])->name('create');
@@ -44,4 +51,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/bulk-assign-access', [MenuController::class, 'bulkAssignAccess'])->name('bulk-assign-access');
         Route::get('/export-roles', [MenuController::class, 'exportRoles'])->name('export-roles');
     });
-});
+
+    // Group terpisah untuk user
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::get('/', [UsersController::class, 'index'])->name('index'); // Diubah dari '/user' ke '/'
+        Route::get('/create', [UsersController::class, 'create'])->name('create');
+        Route::post('/', [UsersController::class, 'store'])->name('store');
+        Route::get('/{user}/edit', [UsersController::class, 'edit'])->name('edit');
+        Route::put('/{user}', [UsersController::class, 'update'])->name('update');
+        Route::delete('/{user}', [UsersController::class, 'destroy'])->name('destroy');
+    });
+    Route::prefix('penilaian')->name('penilaian.')->group(function () {
+        Route::get('/', [PenilaianController::class, 'index'])->name('index');
+        Route::get('/create', [PenilaianController::class, 'create'])->name('create');
+    });
+    
+}); 

@@ -1,7 +1,7 @@
 <nav class="main-header navbar navbar-expand navbar-white navbar-light bg-cubiconia" style="background-color:#0467be;">
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button" onclick="hideMenu()"><i class="fas fa-bars"></i></a>
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button" onclick="hideMenu()"></a>
         </li>
     </ul>
 

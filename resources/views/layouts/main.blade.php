@@ -73,11 +73,13 @@
 
             <nav id="navbar" class="navbar">
                 <ul>
+                    <li><a class="nav-link scrollto" href="{{ url('lowongan/#index') }}">Job Vacancy</a></li>
                     <li><a class="nav-link scrollto" href="{{ url('/#home') }}">Beranda</a></li>
                     <li><a class="nav-link scrollto" href="{{ url('/#contact') }}">Kontak</a></li>
                 </ul>
                 <i class="bi bi-list mobile-nav-toggle mr-1"></i>
             </nav><!-- .navbar -->
+            <div class="pt-4"></div>
             <div class="social-links">
                 @auth
                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">

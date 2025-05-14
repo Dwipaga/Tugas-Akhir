@@ -8,7 +8,7 @@
 
 @section('content')
 <div class="row">
-    <div class="col-lg-3 col-6">
+    <div class="col-lg-3 col-6" style="margin-left: 10px;">
         <!-- small box -->
         <div class="small-box bg-info">
             <div class="inner">

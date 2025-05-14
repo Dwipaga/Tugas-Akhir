@@ -104,7 +104,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label></label>
                     <div class="card bg-light">
@@ -144,7 +143,6 @@
                 </div>
 
                 <div class="form-group d-flex justify-content-between">
-                    <a href="{{ route('menus.index') }}" class="btn btn-secondary">Cancel</a>
                     <div>
                         @if(isset($menu))
                         <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteConfirmModal">
@@ -155,6 +153,7 @@
                             <i class="fas fa-save"></i> {{ isset($menu) ? 'Update' : 'Save' }} Menu
                         </button>
                     </div>
+                    <a href="{{ route('menus.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>
