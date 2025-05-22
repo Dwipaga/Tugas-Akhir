@@ -27,21 +27,23 @@
                         <tr>
                             <th width="5%">ID</th>
                             <th width="15%">Username</th>
-                            <th width="15%">Email</th>
                             <th width="15%">First Name</th>
                             <th width="15%">Last Name</th>
+                            <th width="15%">Email</th>
+                            <th width="15%">Group</th>
                             <th width="10%">Phone</th>
                             <th width="15%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($users as $index => $user)
                         <tr>
-                            <td>{{ $user->user_id }}</td>
+                            <td>{{ $index + 1}}</td>
                             <td>{{ $user->username }}</td>
-                            <td>{{ $user->email }}</td>
                             <td>{{ $user->firstname }}</td>
                             <td>{{ $user->lastname }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->group_name }}</td>
                             <td>{{ $user->phone }}</td>
                             <td>
                                 <a href="{{ route('user.edit', $user->user_id) }}" class="btn btn-sm btn-primary">
@@ -71,7 +73,7 @@
 <script>
     $('#menuDataTable').DataTable({
         "order": [
-            [5, "asc"]
+            [0, "asc"]
         ],
         "pageLength": 25
     });
