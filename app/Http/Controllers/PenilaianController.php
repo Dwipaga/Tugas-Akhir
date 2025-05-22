@@ -29,7 +29,7 @@ class PenilaianController extends Controller
             'bobot' => 'required|numeric|min:0|max:100',
             'is_active' => 'boolean'
         ]);
-
+        $validated['is_active'] = isset($validated['is_active']) && $validated['is_active'] == 1 ? 1 : 0;
         Penilaian::create($validated);
 
         return redirect()->route('penilaian.index')
@@ -52,6 +52,7 @@ class PenilaianController extends Controller
             'bobot' => 'required|numeric|min:0|max:100',
             'is_active' => 'boolean'
         ]);
+        $validated['is_active'] = isset($validated['is_active']) && $validated['is_active'] == 1 ? 1 : 0;
 
         $penilaian = Penilaian::findOrFail($id);
         $penilaian->update($validated);

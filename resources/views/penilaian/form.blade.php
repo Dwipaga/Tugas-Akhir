@@ -85,7 +85,7 @@
 
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1" {{ old('is_active', $penilaian->is_active ?? true) ? 'checked' : '' }}>
+                        <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" value="1" {{isset($penilaian->is_active) && $penilaian->is_active == 1 ? 'checked' : '' }}>
                         <label class="custom-control-label" for="is_active">Is Active</label>
                     </div>
                 </div>
