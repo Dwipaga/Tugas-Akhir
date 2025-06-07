@@ -12,6 +12,7 @@ use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\PublicJobVacancyController;
 use App\Http\Controllers\UsersController;
 use App\Models\Penilaian;
+use App\Http\Controllers\GroupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -97,4 +98,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/download-cv', [ApplicationAdminController::class, 'downloadCV'])->name('download-cv');
         Route::get('/{id}/download-portfolio', [ApplicationAdminController::class, 'downloadPortfolio'])->name('download-portfolio');
     });
+    Route::prefix('groups')->group(function () {
+    Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+    Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
+    Route::post('/', [GroupController::class, 'store'])->name('groups.store');
+    Route::get('/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+    Route::put('/{group}', [GroupController::class, 'update'])->name('groups.update');
+    Route::delete('/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+});
 });
