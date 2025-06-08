@@ -4,6 +4,7 @@ use App\Http\Controllers\ApplicationAdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\LowonganController;
@@ -99,11 +100,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/download-portfolio', [ApplicationAdminController::class, 'downloadPortfolio'])->name('download-portfolio');
     });
     Route::prefix('groups')->group(function () {
-    Route::get('/', [GroupController::class, 'index'])->name('groups.index');
-    Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
-    Route::post('/', [GroupController::class, 'store'])->name('groups.store');
-    Route::get('/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
-    Route::put('/{group}', [GroupController::class, 'update'])->name('groups.update');
-    Route::delete('/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
-});
+        Route::get('/', [GroupController::class, 'index'])->name('groups.index');
+        Route::get('/create', [GroupController::class, 'create'])->name('groups.create');
+        Route::post('/', [GroupController::class, 'store'])->name('groups.store');
+        Route::get('/{group}/edit', [GroupController::class, 'edit'])->name('groups.edit');
+        Route::put('/{group}', [GroupController::class, 'update'])->name('groups.update');
+        Route::delete('/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+    });
+    Route::prefix('evaluations')->name('evaluations.')->group(function () {
+        Route::get('/', [EvaluationController::class, 'index'])->name('index');
+        Route::get('/{asesi_id}/create', [EvaluationController::class, 'create'])->name('create');
+        Route::post('/{asesi_id}/store', [EvaluationController::class, 'store'])->name('store');
+        Route::get('/{asesi_id}/show', [EvaluationController::class, 'showEvaluation'])->name('show');
+        Route::get('/{asesi_id}/export-pdf', [EvaluationController::class, 'exportPdf'])->name('exportPdf');
+    });
 });
