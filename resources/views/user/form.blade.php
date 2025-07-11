@@ -1,127 +1,179 @@
 @extends('layouts.auth')
 
-@section('title', isset($user) ? 'Edit User' : 'Add User')
+@section('title', $user ? 'Edit User' : 'Add User')
 
 @section('content')
+@if(isset($labels) && count($labels) > 0)
+
+<div class="card shadow mb-4 mt-5">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold text-primary">Grafik Evaluasi - 6 Bulan Terakhir</h6>
+    </div>
+    <div class="card-body">
+        <canvas id="evaluasiChart" height="100"></canvas>
+    </div>
+</div>
+@endif
 <div class="container-fluid">
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">{{ isset($user) ? 'Edit' : 'Add' }} User Form</h6>
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">{{ $user ? 'Edit' : 'Add' }} User</h6>
         </div>
         <div class="card-body">
-            <form action="{{ isset($user) ? route('user.update', $user->user_id) : route('user.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ $user ? route('user.update', $user->user_id) : route('user.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @if(isset($user))
-                {{-- Keep using POST method as defined in routes --}}
-                @endif
+                @if ($user) @method('POST') @endif
 
                 <div class="row">
+                    {{-- Kolom Kiri --}}
                     <div class="col-md-6">
-                        <!-- Username Field -->
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input type="text" class="form-control @error('username') is-invalid @enderror" id="username" name="username" value="{{ old('username', $user->username ?? '') }}" required>
-                            @error('username')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="text" name="username" class="form-control" value="{{ old('username', $user->username ?? '') }}">
                         </div>
 
-                        <!-- Email Field -->
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $user->email ?? '') }}" required>
-                            @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}">
                         </div>
 
-                        <!-- First Name Field -->
                         <div class="form-group">
                             <label for="firstname">First Name</label>
-                            <input type="text" class="form-control @error('firstname') is-invalid @enderror" id="firstname" name="firstname" value="{{ old('firstname', $user->firstname ?? '') }}" required>
-                            @error('firstname')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input type="text" name="firstname" class="form-control" value="{{ old('firstname', $user->firstname ?? '') }}">
                         </div>
+
                         <div class="form-group">
-                            <label>Group</label>
-                            <select class="form-control" id="group_id" name="group_id">
-                                @if (Auth::user()->group_id == 1)
-                                @if(isset($user) && $user->group_id)
+                            <label for="lastname">Last Name</label>
+                            <input type="text" name="lastname" class="form-control" value="{{ old('lastname', $user->lastname ?? '') }}">
+                        </div>
 
-                                <option value="1" {{ (old('group_id', $user->group_id) == 1) ? 'selected' : '' }}>Super Admin</option>
-                                @else
-                                <option value="1">Super Admin</option>
-                                @endif
-                                @endif
-                                @foreach ($groups as $group)
-                                @if ($group->group_id != 1)
-                                @if(isset($user) && $user->group_id)
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone ?? '') }}">
+                        </div>
 
-                                <option value="{{ $group->group_id }}" {{ (old('group_id', $user->group_id) == $group->group_id) ? 'selected' : '' }}>{{ $group->group_name }}</option>
-                                @else
-                                <option value="{{ $group->group_id }}" >{{ $group->group_name }}</option>
-                                @endif
-                                @endif
-                                @endforeach
+                        <div class="form-group">
+                            <label for="npwp">NPWP</label>
+                            <input type="number" name="npwp" class="form-control" value="{{ old('npwp', $user->npwp ?? '') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nik">NIK</label>
+                            <input type="number" name="nik" class="form-control" value="{{ old('nik', $user->nik ?? '') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tempat_lahir">Tempat Lahir</label>
+                            <input type="text" name="tempat_lahir" class="form-control" value="{{ old('tempat_lahir', $user->tempat_lahir ?? '') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tanggal_lahir">Tanggal Lahir</label>
+                            <input type="date" name="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir', $user->tanggal_lahir ?? '') }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="alamat">Alamat</label>
+                            <textarea name="alamat" class="form-control" rows="2">{{ old('alamat', $user->alamat ?? '') }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="jenis_kelamin">Jenis Kelamin</label>
+                            <select name="jenis_kelamin" class="form-control">
+                                <option value="L" {{ old('jenis_kelamin', $user->jenis_kelamin ?? '') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                                <option value="P" {{ old('jenis_kelamin', $user->jenis_kelamin ?? '') == 'P' ? 'selected' : '' }}>Perempuan</option>
                             </select>
                         </div>
-                        <!-- Photo Field -->
+
                         <div class="form-group">
-                            <label for="photo">Profile Photo</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input @error('photo') is-invalid @enderror" id="photo" name="photo" accept=".jpg,.jpeg,.png">
-                                <label class="custom-file-label" for="photo">Choose file</label>
-                                @error('photo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            @if(isset($user) && $user->photo)
+                            <label for="photo">Foto</label>
+                            <input type="file" name="photo" class="form-control-file">
+                            @if (isset($user) && $user->photo)
                             <div class="mt-2">
-                                <img src="{{ Storage::url('user-photos/'.$user->photo) }}" width="100" class="img-thumbnail">
-                                <p class="text-muted small mt-1">Current photo</p>
+                                <img src="{{ asset('storage/user-photos/' . $user->photo) }}" alt="Foto Profil" width="120">
                             </div>
                             @endif
                         </div>
                     </div>
+
+                    {{-- Kolom Kanan --}}
                     <div class="col-md-6">
-                        <!-- Last Name Field -->
                         <div class="form-group">
-                            <label for="lastname">Last Name</label>
-                            <input type="text" class="form-control @error('lastname') is-invalid @enderror" id="lastname" name="lastname" value="{{ old('lastname', $user->lastname ?? '') }}" required>
-                            @error('lastname')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label for="tanggal_masuk">Tanggal Masuk</label>
+                            <input type="date" name="tanggal_masuk" class="form-control" value="{{ old('tanggal_masuk', $user->tanggal_masuk ?? '') }}">
                         </div>
 
-                        <!-- Phone Field -->
                         <div class="form-group">
-                            <label for="phone">Phone</label>
-                            <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone ?? '') }}" required>
-                            @error('phone')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label for="tanggal_akhir_kontrak">Tanggal Akhir Kontrak</label>
+                            <input type="date" name="tanggal_akhir_kontrak" class="form-control" value="{{ old('tanggal_akhir_kontrak', $user->tanggal_akhir_kontrak ?? '') }}">
                         </div>
 
-                        <!-- Password Field -->
+
+
                         <div class="form-group">
-                            <label for="password">{{ isset($user) ? 'New ' : '' }}Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" {{ isset($user) ? '' : 'required' }}>
-                            @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <label for="jenis_kontrak">Jenis Kontrak</label>
+                            <select name="jenis_kontrak" class="form-control">
+                                <option value="" disabled {{ old('jenis_kontrak', $user->jenis_kontrak ?? '') == null ? 'selected' : '' }}>--Select Jenis Kontrak--</option>
+                                <option value="PKWT" {{ old('jenis_kontrak', $user->jenis_kontrak ?? '') == 'PKWT' ? 'selected' : '' }}>PKWT</option>
+                                <option value="PKWTT" {{ old('jenis_kontrak', $user->jenis_kontrak ?? '') == 'PKWTT' ? 'selected' : '' }}>PKWTT</option>
+                                <option value="INTERNSHIP" {{ old('jenis_kontrak', $user->jenis_kontrak ?? '') == 'INTERNSHIP' ? 'selected' : '' }}>Internship</option>
+                            </select>
                         </div>
 
-                        <!-- Password Confirmation -->
                         <div class="form-group">
-                            <label for="password_confirmation">Confirm Password</label>
-                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" {{ isset($user) ? '' : 'required' }}>
+                            <label for="divisi">Divisi</label>
+                            <select name="divisi" class="form-control">
+                                <option value="" {{ old('divisi', $user->divisi ?? '') == null ? 'selected' : '' }}>--Select Divisi--</option>
+                                <option value="PROGRAMMER" {{ old('divisi', $user->divisi ?? '') == 'Programer' ? 'selected' : '' }}>Programer</option>
+                                <option value="BSS" {{ old('divisi', $user->divisi ?? '') == 'BSS' ? 'selected' : '' }}>BSS</option>
+                                <option value="HRD" {{ old('divisi', $user->divisi ?? '') == 'HRD' ? 'selected' : '' }}>HRD</option>
+                                <option value="CONSULTANT" {{ old('divisi', $user->divisi ?? '') == 'Consultant' ? 'selected' : '' }}>Consultant</option>
+                            </select>
+                        </div>
+
+
+
+                        <div class="form-group">
+                            <label for="dokumen_kontrak">Dokumen Kontrak</label>
+                            <input type="file" name="dokumen_kontrak" class="form-control-file">
+                            @if (isset($user) && $user->dokumen_kontrak)
+                            <div class="mt-2">
+                                <a href="{{ asset('storage/dokumen-files/' . $user->dokumen_kontrak) }}" target="_blank">Lihat Dokumen</a>
+                            </div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password {{ $user ? '(Kosongkan jika tidak diubah)' : '' }}</label>
+                            <input type="password" name="password" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password_confirmation">Konfirmasi Password</label>
+                            <input type="password" name="password_confirmation" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="group_id">Group</label>
+                            <select name="group_id" class="form-control">
+                                @if (Auth::user()->group_id == 1)
+                                <option value="1" {{ old('group_id', $user->group_id ?? '') == 1 ? 'selected' : '' }}>Super Admin</option>
+                                @endif
+                                @foreach ($groups as $group)
+                                @if ($group->group_id != 1)
+                                <option value="{{ $group->group_id }}" {{ old('group_id', $user->group_id ?? '') == $group->group_id ? 'selected' : '' }}>
+                                    {{ $group->group_name }}
+                                </option>
+                                @endif
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between">
+
+                <div class="mt-4 d-flex justify-content-between">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-user-tie"></i> {{ isset($user) ? 'Update' : 'Create' }} User
+                        <i class="fas fa-save"></i> {{ $user ? 'Update' : 'Create' }} User
                     </button>
                     <a href="{{ route('user.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
@@ -129,38 +181,35 @@
         </div>
     </div>
 </div>
-@endsection
 
+
+@endsection
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
-    // Show file name when file selected
-    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
-        var fileName = document.getElementById("photo").files[0].name;
-        var nextSibling = e.target.nextElementSibling;
-        nextSibling.innerText = fileName;
+    const ctx = document.getElementById('evaluasiChart').getContext('2d');
+    const evaluasiChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($labels) !!},
+            datasets: [{
+                label: 'Total Akhir',
+                data: {!! json_encode($data) !!},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
     });
 </script>
-@endpush
-
-@push('styles')
-<style>
-    .card {
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-    }
-
-    .card-header {
-        background-color: #f8f9fc;
-        border-bottom: 1px solid #e3e6f0;
-    }
-
-    .form-control {
-        border-radius: 4px;
-    }
-
-    .custom-file-label::after {
-        content: "Browse";
-    }
-</style>
 @endpush

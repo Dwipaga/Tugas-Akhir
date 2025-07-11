@@ -44,6 +44,17 @@ class User extends Authenticatable
         'oss_id',
         'status',
         'username',
+        'id_karyawan',
+        'tanggal_lahir',
+        'tanggal_masuk',
+        'tanggal_akhir_kontrak',
+        'npwp',
+        'jenis_kontrak',
+        'dokumen_kontrak',
+        'nik',
+        'tempat_lahir',
+        'alamat',
+        'divisi',
     ];
 
     /**

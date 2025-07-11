@@ -22,15 +22,25 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="menuDataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="menuDataTable" style="width: 100%;" cellspacing="0">
                     <thead>
                         <tr>
                             <th width="5%">ID</th>
+                            <th width="10%">ID Karyawan</th>
                             <th width="15%">Username</th>
                             <th width="15%">First Name</th>
                             <th width="15%">Last Name</th>
+                            <th width="20%">NIK</th>
+                            <th width="15%">Tgl Lahir</th>
+                            <th width="5%">Usia</th>
+                            <th width="15%">Tgl Masuk</th>
+                            <th width="15%">Tgl Terakhir Kontrak</th>
+                            <th style="width:20%;">Sisa Kontrak</th>
+                            <th width="20%">NPWP</th>
+                            <th width="15%">Jenis Kontrak</th>
+                            <th width="15%">Dok. Kontrak</th>
                             <th width="15%">Email</th>
-                            <th width="15%">Group</th>
+                            <th width="10%">Group</th>
                             <th width="10%">Phone</th>
                             <th width="15%">Actions</th>
                         </tr>
@@ -39,9 +49,67 @@
                         @foreach($users as $index => $user)
                         <tr>
                             <td>{{ $index + 1}}</td>
+                            <td>{{ $user->id_karyawan }}</td>
                             <td>{{ $user->username }}</td>
                             <td>{{ $user->firstname }}</td>
                             <td>{{ $user->lastname }}</td>
+                            <td>{{ $user->nik }}</td>
+                            <td>{{ $user->tanggal_lahir != null ? \Carbon\Carbon::parse($user->tanggal_lahir)->format('d-m-Y') : '-' }}</td>
+                            <td>{{ $user->tanggal_lahir ? \Carbon\Carbon::parse($user->tanggal_lahir)->age . " Tahun" : ""}}</td>
+                            <td>{{ $user->tanggal_masuk ? \Carbon\Carbon::parse($user->tanggal_masuk)->format('d-m-Y') : '-' }}</td>
+                            <td>{{ $user->tanggal_akhir_kontrak ? \Carbon\Carbon::parse($user->tanggal_akhir_kontrak)->format('d-m-Y') : '-' }}</td>
+                            <td>
+                                @if ($user->tanggal_akhir_kontrak)
+                                @php
+                                $tanggalAkhir = \Carbon\Carbon::parse($user->tanggal_akhir_kontrak);
+                                $now = \Carbon\Carbon::now();
+                                $diff = $now->diff($tanggalAkhir);
+                                $selisihText = [];
+
+                                if ($diff->y > 0) {
+                                $selisihText[] = $diff->y . ' tahun';
+                                }
+                                if ($diff->m > 0) {
+                                $selisihText[] = $diff->m . ' bulan';
+                                }
+                                if ($diff->d > 0) {
+                                $selisihText[] = $diff->d . ' hari';
+                                }
+
+                                $output = count($selisihText) > 0 ? implode(' ', $selisihText) : '0 hari';
+
+                                if ($tanggalAkhir < $now) {
+                                    $class='bg-danger text-white' ;
+                                    $label='KONTRAK HABIS' ;
+                                    } elseif ($diff->y > 0) {
+                                    $class = 'bg-success text-white';
+                                    $label = 'Sisa ' . $output;
+                                    } else {
+                                    $class = 'bg-warning text-dark';
+                                    $label = 'Sisa ' . $output;
+                                    }
+                                    @endphp
+
+                                    <span class="badge {{ $class }} rounded-pill text-sm px-3 py-1" style="font-size: 0.75rem;">
+                                        {{ $label }}
+                                    </span>
+                                    @else
+                                    <span class="text-muted">-</span>
+                                    @endif
+                            </td>
+
+
+                            <td>{{ $user->npwp ?? "" }}</td>
+                            <td>{{ $user->jenis_kontrak }}</td>
+                            <td>
+                                @if($user->dokumen_kontrak)
+                                <a href="{{ asset('storage/dokumen-files/' . $user->dokumen_kontrak) }}" target="_blank" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file"></i>
+                                </a>
+                                @else
+                                <span class="text-muted">No Document</span>
+                                @endif
+                            </td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->group_name }}</td>
                             <td>{{ $user->phone }}</td>
@@ -75,7 +143,14 @@
         "order": [
             [0, "asc"]
         ],
-        "pageLength": 25
+        "pageLength": 25,
+        "autoWidth": false,
+        "columnDefs": [{
+                width: "50px",
+                targets: 10
+            }, // Kolom pertama (misal: No)
+
+        ]
     });
 </script>
 @endpush
