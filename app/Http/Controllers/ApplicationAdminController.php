@@ -55,7 +55,7 @@ class ApplicationAdminController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $application = Application::with('jobVacancy')->findOrFail($id);
+        $application = Application::join('job_vacancies', 'applications.job_vacancy_id', 'job_vacancies.id')->findOrFail($id);
 
         $validated = $request->validate([
             'status' => 'required|in:pending,reviewed,accepted,rejected'
@@ -78,6 +78,9 @@ class ApplicationAdminController extends Controller
                     'lastname' => $application->lastname,
                     'phone' => $application->phone,
                     'dokumen' => $application->cv_file,
+                    'divisi' => $application->divisi,
+                    'alamat' => '-',
+                    'tempat_lahir' => '-',
                     'group_id' => 7,
                 ]);
 

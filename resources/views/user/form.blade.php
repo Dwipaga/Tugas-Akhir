@@ -125,6 +125,7 @@
                             <select name="divisi" class="form-control">
                                 <option value="" {{ old('divisi', $user->divisi ?? '') == null ? 'selected' : '' }}>--Select Divisi--</option>
                                 <option value="PROGRAMMER" {{ old('divisi', $user->divisi ?? '') == 'Programer' ? 'selected' : '' }}>Programer</option>
+                                <option value="LEADER" {{ old('divisi', $user->divisi ?? '') == 'Programer' ? 'selected' : '' }}>Leader</option>
                                 <option value="BSS" {{ old('divisi', $user->divisi ?? '') == 'BSS' ? 'selected' : '' }}>BSS</option>
                                 <option value="HRD" {{ old('divisi', $user->divisi ?? '') == 'HRD' ? 'selected' : '' }}>HRD</option>
                                 <option value="CONSULTANT" {{ old('divisi', $user->divisi ?? '') == 'Consultant' ? 'selected' : '' }}>Consultant</option>

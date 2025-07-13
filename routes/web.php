@@ -4,6 +4,7 @@ use App\Http\Controllers\ApplicationAdminController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeDataController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobVacancyController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\PublicJobVacancyController;
 use App\Http\Controllers\UsersController;
 use App\Models\Penilaian;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\HrApprovalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -37,6 +39,8 @@ Route::prefix('apply')->name('application.')->group(function () {
 });
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/employee-data', [EmployeeDataController::class, 'create'])->name('employee-data.create');
+    Route::post('/employee-data', [EmployeeDataController::class, 'store'])->name('employee-data.store');
 
     // Group untuk menus (tanpa prefix user)
     Route::prefix('menus')->name('menus.')->group(function () {
@@ -114,4 +118,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{asesi_id}/show', [EvaluationController::class, 'showEvaluation'])->name('show');
         Route::get('/{asesi_id}/export-pdf', [EvaluationController::class, 'exportPdf'])->name('exportPdf');
     });
+    Route::get('/hr-approval', [HrApprovalController::class, 'index'])->name('hr-approval.index');
+    Route::get('/hr-approval/{id}', [HrApprovalController::class, 'edit'])->name('hr-approval.edit');
+    Route::post('/hr-approval/{id}', [HrApprovalController::class, 'update'])->name('hr-approval.update');
 });
