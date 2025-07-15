@@ -46,7 +46,58 @@ class EvaluationController extends Controller
             $user->group_name = $groupNames[$user->group_id] ?? 'N/A';
         });
 
-        return view('evaluations.index', compact('penilaians', 'asesiUsers'));
+        // Get evaluation results for assessed users (hasil penilaian yang sudah dinilai)
+        $evaluationResults = Evaluation::with([
+            'asesi' => function ($query) {
+                $query->select('user_id', 'firstname', 'group_id');
+            },
+            'penilai' => function ($query) {
+                $query->select('user_id', 'firstname');
+            }
+        ])
+            ->where('penilai_id', Auth::user()->user_id)
+            ->where('bulan_penilaian', $currentMonth)
+            ->whereIn('asesi_ternilai_id', $asesiUsers->pluck('user_id'))
+            ->select([
+                'evaluation_id',
+                'asesi_ternilai_id',
+                'penilai_id',
+                'total_score',
+                'final_grade',
+                'status',
+                'bulan_penilaian',
+                'created_at',
+                'updated_at'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Optional: Get detailed evaluation items/criteria for each evaluation
+        $evaluationDetails = [];
+        if ($evaluationResults->isNotEmpty()) {
+            $evaluationDetails = EvaluationDetail::with([
+                'criteria' => function ($query) {
+                    $query->select('criteria_id', 'criteria_name', 'max_score');
+                }
+            ])
+                ->whereIn('evaluation_id', $evaluationResults->pluck('evaluation_id'))
+                ->select([
+                    'evaluation_detail_id',
+                    'evaluation_id',
+                    'criteria_id',
+                    'score',
+                    'comments'
+                ])
+                ->get()
+                ->groupBy('evaluation_id');
+        }
+
+        return view('evaluations.index', compact(
+            'penilaians',
+            'asesiUsers',
+            'evaluationResults',
+            'evaluationDetails'
+        ));
     }
 
     public function create($asesi_id)

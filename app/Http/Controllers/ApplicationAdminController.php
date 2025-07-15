@@ -95,6 +95,14 @@ class ApplicationAdminController extends Controller
             }
         }
 
+        if ($validated['status'] === 'rejected') {
+            Mail::to($application->email)->send(new \App\Mail\ApplicationRejectedMail(
+                $application->firstname,
+                $application->lastname,
+                $application->jobVacancy->nama_pekerjaan
+            ));
+        }
+
         return redirect()->route('admin.applications.index')
             ->with('success', 'Status lamaran berhasil diupdate.');
     }

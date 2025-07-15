@@ -12,13 +12,13 @@
         <!-- small box -->
         <div class="small-box bg-info">
             <div class="inner">
-                <h3>{{ count($messages) }}</h3>
-                <p>Messages</p>
+                <h3>{{ $users }}</h3>
+                <p>Jumlah Karyawan</p>
             </div>
             <div class="icon">
-                <i class="fas fa-envelope"></i>
+                <i class="fas fa-user"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="/user" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
 
         </div>
     </div>
@@ -27,13 +27,13 @@
         <!-- small box -->
         <div class="small-box bg-success">
             <div class="inner">
-                <h3>{{ count($notifications) }}</h3>
-                <p>Notifications</p>
+                <h3>{{ $jobs }}</h3>
+                <p> <i>Applicant's</i> Menunggu </i>Review</i></p>
             </div>
             <div class="icon">
-                <i class="fas fa-bell"></i>
+                <i class="fas fa-users"></i>
             </div>
-            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            <a href="/apps?status=pending" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
         </div>
     </div>
     <!-- ./col -->
