@@ -120,25 +120,94 @@ $labels = [];
     {
         $groups = DB::table('groups')->get();
         $user = User::findOrFail($id);
-
+    
         $sixMonthsAgo = Carbon::now()->subMonths(5)->startOfMonth();
-
+    
         $evaluations = DB::table('evaluations')
-            ->selectRaw('MONTH(bulan_penilaian) as bulan, YEAR(bulan_penilaian) as tahun, total_akhir')
+            ->selectRaw('CONCAT(groups.group_name, "(", users.firstname, " ", users.lastname, ")") as penilai, MONTH(bulan_penilaian) as bulan, YEAR(bulan_penilaian) as tahun, total_akhir')
+            ->join('users', 'evaluations.penilai_id', 'users.user_id')
+            ->join('groups', 'users.group_id', 'groups.group_id')
             ->where('asesi_ternilai_id', $user->user_id)
             ->where('bulan_penilaian', '>=', $sixMonthsAgo)
             ->orderBy('bulan_penilaian')
             ->get();
-
+    
+        // Ambil unique penilai untuk membuat color mapping
+        $uniquePenilai = $evaluations->pluck('penilai')->unique()->values();
+        
+        // Daftar warna yang akan digunakan
+        $colorPalette = [
+            '#FF6384', // Pink/Red
+            '#36A2EB', // Blue
+            '#FFCE56', // Yellow
+            '#4BC0C0', // Teal
+            '#9966FF', // Purple
+            '#FF9F40', // Orange
+            '#FF6384', // Pink (repeat if needed)
+            '#C9CBCF', // Gray
+            '#4BC0C0', // Teal (repeat)
+            '#FF9F40'  // Orange (repeat)
+        ];
+    
+        // Buat mapping penilai ke warna
+        $penilaiColors = [];
+        foreach ($uniquePenilai as $index => $penilai) {
+            $penilaiColors[$penilai] = $colorPalette[$index % count($colorPalette)];
+        }
+    
+        // Prepare data untuk chart
         $labels = [];
+        $datasets = [];
+        
+        // Group evaluations by penilai
+        $groupedEvaluations = $evaluations->groupBy('penilai');
+        
+        foreach ($groupedEvaluations as $penilai => $penilaiEvaluations) {
+            // dd($penilaiE);
+            $dataPoints = [];
+            $allLabels = [];
+            
+            // Buat semua label bulan dari 6 bulan terakhir
+            for ($i = 5; $i >= 0; $i--) {
+                $date = Carbon::now()->subMonths($i)->startOfMonth();
+                $monthLabel = $date->translatedFormat('F Y');
+                $allLabels[] = $monthLabel;
+                
+                // Cari evaluasi untuk bulan ini
+                $evaluation = $penilaiEvaluations->first(function($e) use ($date) {
+                    return $e->bulan == $date->month && $e->tahun == $date->year;
+                });
+                
+                $dataPoints[] = $evaluation ? $evaluation->total_akhir : null;
+            }
+            
+            // Set labels (hanya perlu sekali)
+            if (empty($labels)) {
+                $labels = $allLabels;
+            }
+            
+            // Buat dataset untuk penilai ini
+            $datasets[] = [
+                'label' => $penilai,
+                'data' => $dataPoints,
+                'borderColor' => $penilaiColors[$penilai],
+                'backgroundColor' => $penilaiColors[$penilai] . '20', // Add transparency
+                'fill' => false,
+                'tension' => 0.1,
+                'pointBackgroundColor' => $penilaiColors[$penilai],
+                'pointBorderColor' => $penilaiColors[$penilai],
+                'pointHoverBackgroundColor' => $penilaiColors[$penilai],
+                'pointHoverBorderColor' => $penilaiColors[$penilai],
+            ];
+        }
+    
+        // Data untuk legacy support (jika masih digunakan)
         $data = [];
-
         foreach ($evaluations as $e) {
-            $labels[] = Carbon::create($e->tahun, $e->bulan)->translatedFormat('F Y');
             $data[] = $e->total_akhir;
         }
-
-        return view('user.form', compact('user', 'groups', 'labels', 'data'));
+    
+        return view('user.form', compact('user', 'groups', 'labels', 'data', 'datasets', 'penilaiColors', 'uniquePenilai'));
     }
 
     public function update(Request $request, $id)

@@ -157,9 +157,6 @@
                         <div class="form-group">
                             <label for="group_id">Group</label>
                             <select name="group_id" class="form-control">
-                                @if (Auth::user()->group_id == 1)
-                                <option value="1" {{ old('group_id', $user->group_id ?? '') == 1 ? 'selected' : '' }}>Super Admin</option>
-                                @endif
                                 @foreach ($groups as $group)
                                 @if ($group->group_id != 1)
                                 <option value="{{ $group->group_id }}" {{ old('group_id', $user->group_id ?? '') == $group->group_id ? 'selected' : '' }}>
@@ -193,21 +190,33 @@
         type: 'line',
         data: {
             labels: {!! json_encode($labels) !!},
-            datasets: [{
-                label: 'Total Akhir',
-                data: {!! json_encode($data) !!},
-                borderColor: 'rgba(75, 192, 192, 1)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: {!! json_encode($datasets) !!}
         },
         options: {
             responsive: true,
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Total Akhir'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Bulan'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true
                 }
             }
         }
