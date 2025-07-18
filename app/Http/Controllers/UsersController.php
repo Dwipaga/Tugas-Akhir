@@ -109,7 +109,14 @@ $labels = [];
         } else if ($divisi == 'CONSULTANT') {
             $divisi = 'CST';
         };
-        $id_karyawan = 'CBC-' . $divisi . '-' . date('Ymd') . '-' . str_pad($user->user_id, 4, '0', STR_PAD_LEFT);
+
+        if ($user->group_id == 2) {
+            $divisi = 'HRD';
+        }
+        if ($user->group_id == 3) {
+            $divisi = 'LEAD';
+        }
+        $id_karyawan = 'CBC-' . $divisi . '-' . date('Ymd') . '-' . rand(1000, 9999);
         $user->update(['id_karyawan' => $id_karyawan]); // Update the user with the generated NIK 
 
         return redirect()->route('user.index')

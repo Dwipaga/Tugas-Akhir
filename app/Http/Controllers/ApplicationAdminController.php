@@ -55,13 +55,15 @@ class ApplicationAdminController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $application = Application::join('job_vacancies', 'applications.job_vacancy_id', 'job_vacancies.id')->findOrFail($id);
+        $application = Application::join('job_vacancies', 'applications.job_vacancy_id', 'job_vacancies.id')->where('applications.id', $id);
 
         $validated = $request->validate([
             'status' => 'required|in:pending,reviewed,accepted,rejected'
         ]);
 
         $application->update(['status' => $validated['status']]);
+        $application = Application::join('job_vacancies', 'applications.job_vacancy_id', 'job_vacancies.id')->where('applications.id', $id);
+        $application = $application->first();
 
         // Jika status diterima, buat akun dan kirim email
         if ($validated['status'] === 'accepted') {
@@ -70,9 +72,17 @@ class ApplicationAdminController extends Controller
 
             if (!$existingUser) {
                 $randomPassword = Str::random(10);
+                $divisi = $application->divisi;
+                if ($divisi == 'PROGRAMMER') {
+                    $divisi = 'PRG';
+                } else if ($divisi == 'CONSULTANT') {
+                    $divisi = 'CST';
+                };
 
+                $id_karyawan = 'CBC-' . $divisi . '-' . date('Ymd') . '-' . rand(1000, 9999);
                 $user = \App\Models\User::create([
                     'email' => $application->email,
+                    'id_karyawan' => $id_karyawan,
                     'password' => md5($randomPassword),
                     'firstname' => $application->firstname,
                     'lastname' => $application->lastname,

@@ -39,9 +39,13 @@ Route::prefix('apply')->name('application.')->group(function () {
 });
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/employee-data', [EmployeeDataController::class, 'create'])->name('employee-data.create');
-    Route::post('/employee-data', [EmployeeDataController::class, 'store'])->name('employee-data.store');
 
+
+    Route::get('employee-data', [EmployeeDataController::class, 'create'])->name('employee-data.create');
+    Route::post('employee-data', [EmployeeDataController::class, 'store'])->name('employee-data.store');
+    Route::post('employee-data/upload-signed-contract', [EmployeeDataController::class, 'uploadSignedContract'])->name('employee-data.upload-signed-contract');
+    Route::get('employee-data/view-contract/{userId}', [EmployeeDataController::class, 'viewContract'])->name('employee-data.view-contract');
+    Route::get('employee-data/download-contract/{userId}', [EmployeeDataController::class, 'downloadContract'])->name('employee-data.download-contract');
     // Group untuk menus (tanpa prefix user)
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');

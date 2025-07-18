@@ -125,9 +125,7 @@
                             <select name="divisi" class="form-control">
                                 <option value="" {{ old('divisi', $user->divisi ?? '') == null ? 'selected' : '' }}>--Select Divisi--</option>
                                 <option value="PROGRAMMER" {{ old('divisi', $user->divisi ?? '') == 'Programer' ? 'selected' : '' }}>Programer</option>
-                                <option value="LEADER" {{ old('divisi', $user->divisi ?? '') == 'Programer' ? 'selected' : '' }}>Leader</option>
                                 <option value="BSS" {{ old('divisi', $user->divisi ?? '') == 'BSS' ? 'selected' : '' }}>BSS</option>
-                                <option value="HRD" {{ old('divisi', $user->divisi ?? '') == 'HRD' ? 'selected' : '' }}>HRD</option>
                                 <option value="CONSULTANT" {{ old('divisi', $user->divisi ?? '') == 'Consultant' ? 'selected' : '' }}>Consultant</option>
                             </select>
                         </div>
@@ -158,11 +156,9 @@
                             <label for="group_id">Group</label>
                             <select name="group_id" class="form-control">
                                 @foreach ($groups as $group)
-                                @if ($group->group_id != 1)
                                 <option value="{{ $group->group_id }}" {{ old('group_id', $user->group_id ?? '') == $group->group_id ? 'selected' : '' }}>
                                     {{ $group->group_name }}
                                 </option>
-                                @endif
                                 @endforeach
                             </select>
                         </div>
@@ -189,8 +185,12 @@
     const evaluasiChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($labels) !!},
-            datasets: {!! json_encode($datasets) !!}
+            labels: {
+                !!json_encode($labels) !!
+            },
+            datasets: {
+                !!json_encode($datasets) !!
+            }
         },
         options: {
             responsive: true,

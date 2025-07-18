@@ -18,18 +18,39 @@ class EvaluationController extends Controller
         $currentMonth = Carbon::now()->startOfMonth();
 
         // Get unique asesi_id groups where the current user is an asesor
-        $penilaians = Penilaian::select('asesi_id')
-            ->where('asesor_id', $userGroupId)
+        $penilaians = Penilaian::where('asesor_id', $userGroupId)
             ->where('is_active', true)
-            ->groupBy('asesi_id')
+
             ->with(['asesi' => function ($query) {
                 $query->select('group_id', 'group_name');
-            }])
-            ->get();
+            }]);
+        if (Auth::user()->group_id == 3) {
+            $penilaians = $penilaians->join('groups as u', 'penilaians.asesi_id', '=', 'u.group_id')
+                ->join('users as us', 'u.group_id', '=', 'us.group_id')
+                ->join('groups as asesor', 'u.group_id', '=', 'asesor.group_id')
+                ->join('users as ase', function ($join) {
+                    $join->on('asesor.group_id', '=', 'ase.group_id')
+                        ->on('us.divisi', '=', 'ase.divisi');
+                })->select('us.user_id as user_id', 'ase.divisi as divisi')->groupBy('us.user_id', 'ase.divisi')
+                ->where('ase.divisi', Auth::user()->divisi);
+        } else {
+            $penilaians = $penilaians->select('asesi_id')->groupBy('asesi_id');
+        }
+        // dd($penilaians->get(), Auth::user()->divisi);
+
+
+        $penilaians = $penilaians->get();
+
 
         // Get users who belong to these asesi groups
-        $asesiUsers = User::whereIn('group_id', $penilaians->pluck('asesi_id'))
-            ->select('user_id', 'firstname', 'group_id')
+        $asesiUsers = User::select('user_id', 'firstname', 'group_id');
+        if (Auth::user()->group_id == 3) {
+            $asesiUsers = $asesiUsers->whereIn('user_id', $penilaians->pluck('user_id'));
+        } else {
+            $asesiUsers = $asesiUsers->whereIn('group_id', $penilaians->pluck('group_id'));
+        }
+
+        $asesiUsers = $asesiUsers
             ->get();
 
         // Check evaluation status for each user
@@ -41,14 +62,18 @@ class EvaluationController extends Controller
         });
 
         // Map group names to users
-        $groupNames = $penilaians->pluck('asesi.group_name', 'asesi_id')->toArray();
+        $groupNames = $penilaians->pluck( 'asesi_id')->toArray();
         $asesiUsers->each(function ($user) use ($groupNames) {
-            $user->group_name = $groupNames[$user->group_id] ?? 'N/A';
+            if (Auth::user()->group_id == 3) {
+                $user->group_name = User::where('user_id', $user->user_id)->first()->divisi ?? 'N/A'; 
+            } else {
+                $user->group_name = $groupNames[$user->group_id] ?? 'N/A';
+            }
         });
 
         // Get evaluation results for assessed users (hasil penilaian yang sudah dinilai)
         $evaluationResults = Evaluation::with([
-            'asesi' => function ($query) {
+            'asesiTernilai' => function ($query) {
                 $query->select('user_id', 'firstname', 'group_id');
             },
             'penilai' => function ($query) {
@@ -59,12 +84,10 @@ class EvaluationController extends Controller
             ->where('bulan_penilaian', $currentMonth)
             ->whereIn('asesi_ternilai_id', $asesiUsers->pluck('user_id'))
             ->select([
-                'evaluation_id',
+                'evaluations.id as evaluation_id',
                 'asesi_ternilai_id',
                 'penilai_id',
-                'total_score',
-                'final_grade',
-                'status',
+                'total_akhir as total_score',
                 'bulan_penilaian',
                 'created_at',
                 'updated_at'
@@ -72,31 +95,11 @@ class EvaluationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Optional: Get detailed evaluation items/criteria for each evaluation
-        $evaluationDetails = [];
-        if ($evaluationResults->isNotEmpty()) {
-            $evaluationDetails = EvaluationDetail::with([
-                'criteria' => function ($query) {
-                    $query->select('criteria_id', 'criteria_name', 'max_score');
-                }
-            ])
-                ->whereIn('evaluation_id', $evaluationResults->pluck('evaluation_id'))
-                ->select([
-                    'evaluation_detail_id',
-                    'evaluation_id',
-                    'criteria_id',
-                    'score',
-                    'comments'
-                ])
-                ->get()
-                ->groupBy('evaluation_id');
-        }
 
         return view('evaluations.index', compact(
             'penilaians',
             'asesiUsers',
             'evaluationResults',
-            'evaluationDetails'
         ));
     }
 

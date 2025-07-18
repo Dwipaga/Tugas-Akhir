@@ -60,9 +60,7 @@
                                     <td>{{ $user->firstname }}</td>
                                     <td>
                                         @if($user->has_evaluation)
-                                            <button class="btn btn-info btn-sm view-evaluation" data-asesi-id="{{ $user->user_id }}" data-toggle="modal" data-target="#evaluationModal">
-                                                <i class="fas fa-eye"></i> View Evaluation
-                                            </button>
+                                            
                                             <a href="{{ route('evaluations.exportPdf', ['asesi_id' => $user->user_id]) }}" class="btn btn-success btn-sm">
                                                 <i class="fas fa-file-pdf"></i> Export PDF
                                             </a>
@@ -97,8 +95,6 @@
                                         <th width="20%">Asesi Name</th>
                                         <th width="15%">Group</th>
                                         <th width="12%">Total Score</th>
-                                        <th width="12%">Grade</th>
-                                        <th width="12%">Status</th>
                                         <th width="12%">Date</th>
                                         <th width="12%">Action</th>
                                     </tr>
@@ -107,52 +103,18 @@
                                     @foreach($evaluationResults as $key => $result)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $result->asesi->firstname }}</td>
+                                        <td>{{ $result->asesiTernilai->firstname }}</td>
                                         <td>
                                             @php
-                                                $groupName = $penilaians->where('asesi_id', $result->asesi->group_id)->first();
+                                                $groupName = $penilaians->where('asesi_id', $result->asesiTernilai->group_id)->first();
                                             @endphp
                                             {{ $groupName->asesi->group_name ?? 'N/A' }}
                                         </td>
                                         <td>
                                             <span class="badge badge-info">{{ $result->total_score }}</span>
                                         </td>
-                                        <td>
-                                            @php
-                                                $gradeClass = '';
-                                                switch($result->final_grade) {
-                                                    case 'A':
-                                                        $gradeClass = 'badge-success';
-                                                        break;
-                                                    case 'B':
-                                                        $gradeClass = 'badge-primary';
-                                                        break;
-                                                    case 'C':
-                                                        $gradeClass = 'badge-warning';
-                                                        break;
-                                                    case 'D':
-                                                        $gradeClass = 'badge-danger';
-                                                        break;
-                                                    default:
-                                                        $gradeClass = 'badge-secondary';
-                                                }
-                                            @endphp
-                                            <span class="badge {{ $gradeClass }}">{{ $result->final_grade }}</span>
-                                        </td>
-                                        <td>
-                                            @if($result->status == 'completed')
-                                                <span class="badge badge-success">Completed</span>
-                                            @elseif($result->status == 'draft')
-                                                <span class="badge badge-warning">Draft</span>
-                                            @else
-                                                <span class="badge badge-secondary">{{ ucfirst($result->status) }}</span>
-                                            @endif
-                                        </td>
                                         <td>{{ $result->created_at->format('d M Y') }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-info view-result-detail" data-evaluation-id="{{ $result->evaluation_id }}" data-toggle="modal" data-target="#resultDetailModal">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </button>
                                             <a href="{{ route('evaluations.exportPdf', ['asesi_id' => $result->asesi_ternilai_id]) }}" class="btn btn-sm btn-success">
                                                 <i class="fas fa-download"></i> PDF
                                             </a>
@@ -285,9 +247,10 @@
         // Handle View Evaluation button click (existing)
         $('.view-evaluation').on('click', function() {
             var asesiId = $(this).data('asesi-id');
+            console.log(asesiId);
             
             $.ajax({
-                url: '{{ route("evaluations.show", ":asesi_id") }}'.replace(':asesi_id', asesiId),
+                url: '{{ route("evaluations.show", ":asesi_id") }}'.replace(':asesi_id', 27),
                 method: 'GET',
                 success: function(response) {
                     $('#asesi-name').text('Asesi: ' + response.asesi_name);
@@ -317,7 +280,7 @@
             var evaluationId = $(this).data('evaluation-id');
             
             $.ajax({
-                url: '{{ route("evaluations.showResult", ":evaluation_id") }}'.replace(':evaluation_id', evaluationId),
+                url: '{{ route("evaluations.show", ":evaluation_id") }}'.replace(':evaluation_id', evaluationId),
                 method: 'GET',
                 success: function(response) {
                     $('#result-asesi-name').text(response.asesi_name);
