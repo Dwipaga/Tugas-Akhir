@@ -12,8 +12,11 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             'user_id' => 2,
-            'group_id' => 1,
+            'group_id' => 2,
             'email' => 'aria.blackmore@gmail.com',
+            'divisi' => 'PROGRAMMER',
+            'alamat' => 'mlg',
+            'tempat_lahir' => 'mlg',
             'firstname' => 'Aria B',
             'lastname' => 'Blackmore',
             'phone' => '0212555555',
